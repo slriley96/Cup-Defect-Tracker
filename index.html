@@ -221,6 +221,7 @@
       </div>
       <div class="header-session" id="noSessionInfo">
         <button class="end-button" id="historyBtnStart" onclick="openDashboard()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3)">History</button>
+        <button class="end-button" onclick="generateMockReports()" style="background:rgba(255,200,0,0.2);border:1px solid rgba(255,200,0,0.4);font-size:11px;">Mock Reports</button>
       </div>
     </div>
     <div class="header-rule"></div>
@@ -249,9 +250,10 @@
       <div class="form-group">
         <label class="form-label">Shift <span style="color:#DC2626;">*</span></label>
         <div style="display:flex;gap:8px;margin-top:4px">
-          <button type="button" class="shift-btn" data-value="Day" onclick="selectShift('Day',this)">Day</button>
-          <button type="button" class="shift-btn" data-value="Mid" onclick="selectShift('Mid',this)">Mid</button>
-          <button type="button" class="shift-btn" data-value="Night" onclick="selectShift('Night',this)">Night</button>
+          <button type="button" class="shift-btn" data-value="1st" onclick="selectShift('1st',this)">1st</button>
+          <button type="button" class="shift-btn" data-value="2nd" onclick="selectShift('2nd',this)">2nd</button>
+          <button type="button" class="shift-btn" data-value="3rd" onclick="selectShift('3rd',this)">3rd</button>
+          <button type="button" class="shift-btn" data-value="4th" onclick="selectShift('4th',this)">4th</button>
         </div>
         <div id="shiftError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please select a shift.</div>
       </div>
@@ -280,24 +282,29 @@
 
 <!-- SESSION SUMMARY MODAL -->
 <div class="modal" id="summaryModal">
-  <div class="modal-content">
+  <div class="modal-content" style="max-height:90vh;overflow-y:auto;">
     <h2 class="modal-title">Session Summary</h2>
     <p class="modal-message" style="margin-bottom:1.25rem;">Enter a few final details before exporting.</p>
     <div class="form-group">
-      <label class="form-label">Total Cups Sorted <span style="color:#DC2626;">*</span></label>
-      <input type="number" id="totalCupsInput" class="form-input" placeholder="e.g., 500" min="1" />
-      <div id="totalCupsError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please enter the total number of cups sorted.</div>
+      <label class="form-label">Total Cases Sorted <span style="color:#DC2626;">*</span></label>
+      <input type="number" id="totalCupsInput" class="form-input" placeholder="e.g., 100" min="1" />
+      <div id="totalCupsError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please enter the total number of cases sorted.</div>
     </div>
     <div class="form-group">
-        <label class="form-label">Cups Per Case <span style="color:#DC2626;">*</span></label>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button type="button" class="cups-case-btn" data-value="10" onclick="selectCupsPerCase(10)">10</button>
-          <button type="button" class="cups-case-btn" data-value="12" onclick="selectCupsPerCase(12)">12</button>
-          <button type="button" class="cups-case-btn" data-value="24" onclick="selectCupsPerCase(24)">24</button>
-        </div>
-        <input type="hidden" id="cupsPerCaseInput" value="" />
-        <div id="cupsPerCaseError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please select cups per case.</div>
+      <label class="form-label">Cups Per Case <span style="color:#DC2626;">*</span></label>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="button" class="cups-case-btn" data-value="10" onclick="selectCupsPerCase(10)">10</button>
+        <button type="button" class="cups-case-btn" data-value="12" onclick="selectCupsPerCase(12)">12</button>
+        <button type="button" class="cups-case-btn" data-value="24" onclick="selectCupsPerCase(24)">24</button>
       </div>
+      <input type="hidden" id="cupsPerCaseInput" value="" />
+      <div id="cupsPerCaseError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please select cups per case.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Good Cases <span style="color:#DC2626;">*</span></label>
+      <input type="number" id="goodCasesInput" class="form-input" placeholder="e.g., 95" min="0" />
+      <div id="goodCasesError" style="color:#DC2626;font-size:12px;margin-top:4px;display:none;">Please enter the number of good cases.</div>
+    </div>
     <div class="form-group">
       <label class="form-label">Comments</label>
       <textarea id="commentsInput" class="form-input" rows="3" placeholder="Any additional observations or notes..." style="resize:vertical;"></textarea>
@@ -959,14 +966,6 @@
       ctx.beginPath(); ctx.arc(cx, y, 2, 0, Math.PI*2); ctx.fill();
     }
 
-    // Add A and B labels
-    ctx.fillStyle = '#003478';
-    ctx.font = 'bold 28px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('A', 12, cy - 55);
-    ctx.fillText('B', w - 12, cy - 55);
-
     drawSplitRimTab(ctx, cx, cy, 'left', tabColor, lw);
     drawSplitRimTab(ctx, cx, cy, 'right', tabColor, lw);
 
@@ -1024,14 +1023,6 @@
 
     drawSplitRimTab(ctx, cx, cy, 'left', tabColor, lw);
     drawSplitRimTab(ctx, cx, cy, 'right', tabColor, lw);
-
-    // Add A and B labels - positioned outside the cup
-    ctx.fillStyle = '#003478';
-    ctx.font = 'bold 28px Arial';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('A', 12, cy - 55);
-    ctx.fillText('B', w - 12, cy - 55);
 
     drawDefectMarkers(ctx, defects.filter(d => d.view === 'bottom'));
   }
@@ -1119,9 +1110,11 @@
     // Clear and open summary modal
     document.getElementById('totalCupsInput').value = '';
     document.getElementById('cupsPerCaseInput').value = '';
+    document.getElementById('goodCasesInput').value = '';
     document.getElementById('commentsInput').value = '';
     document.getElementById('totalCupsError').style.display = 'none';
     document.getElementById('cupsPerCaseError').style.display = 'none';
+    document.getElementById('goodCasesError').style.display = 'none';
     document.getElementById('summaryModal').classList.add('active');
   }
 
@@ -1132,6 +1125,7 @@
   async function confirmExport() {
     const totalCupsStr   = document.getElementById('totalCupsInput').value.trim();
     const cupsPerCaseStr = document.getElementById('cupsPerCaseInput').value.trim();
+    const goodCasesStr   = document.getElementById('goodCasesInput').value.trim();
     const comments       = document.getElementById('commentsInput').value.trim();
 
     let valid = true;
@@ -1141,15 +1135,22 @@
     if (!cupsPerCaseStr || parseInt(cupsPerCaseStr) < 1) {
       document.getElementById('cupsPerCaseError').style.display = 'block'; valid = false;
     } else { document.getElementById('cupsPerCaseError').style.display = 'none'; }
+    if (goodCasesStr === '' || parseInt(goodCasesStr) < 0) {
+      document.getElementById('goodCasesError').style.display = 'block'; valid = false;
+    } else { document.getElementById('goodCasesError').style.display = 'none'; }
     if (!valid) return;
 
-    const totalCupsSorted = parseInt(totalCupsStr);
-    const cupsPerCase     = parseInt(cupsPerCaseStr);
-    const wo              = workorders[0];
+    const totalCasesSorted = parseInt(totalCupsStr);  // input is now cases
+    const cupsPerCase      = parseInt(cupsPerCaseStr);
+    const goodCases        = parseInt(goodCasesStr);
+    const totalCupsSorted  = totalCasesSorted * cupsPerCase;
+    const wo               = workorders[0];
 
     const defectCups   = wo.cups.filter(c => c.defects.length > 0).length;
     const totalDefects = wo.cups.reduce((sum, c) => sum + c.defects.length, 0);
-    const casesMade    = ((totalCupsSorted - defectCups) / cupsPerCase).toFixed(2);
+    const goodCups     = goodCases * cupsPerCase;
+    const equiv24pk    = Math.round(goodCups / 24);
+    const casesMade    = goodCases; // keep variable name for history compatibility
     const lpm          = totalCupsSorted > 0 ? Math.round((defectCups / totalCupsSorted) * 1000000) : 0;
     
     // LPM excluding swelling-only defects
@@ -1201,6 +1202,15 @@
     const setStroke= h => { const [r,g,b] = hex2rgb(h); doc.setDrawColor(r,g,b); };
     const setTextC = h => { const [r,g,b] = hex2rgb(h); doc.setTextColor(r,g,b); };
 
+    function drawFooter(pageW, pageH, margin) {
+      const fBarH = 22;
+      const footerY = pageH - fBarH / 2 + 3;  // vertically centered in bar
+      setFill('#003478'); doc.rect(0, pageH - fBarH, pageW, fBarH, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(8); setTextC('#AAAAAA');
+      doc.text('5120 Cup Defect Tracker  |  Simmons Pet Food R&D Process Engineering  |  CONFIDENTIAL', pageW / 2, footerY, { align: 'center' });
+      doc.text(new Date().toLocaleDateString(), pageW - margin, footerY, { align: 'right' });
+    }
+
     function pageHeader(title, cupsPerCase = '') {
         const currentPage = doc.internal.pages.length - 1;
         const defectCupCount = wo.cups.filter(c => c.defects.length > 0).length;
@@ -1212,35 +1222,40 @@
         doc.setFont('helvetica', 'bold'); doc.setFontSize(13); setTextC('#FFFFFF');
         try { doc.addImage(SIMMONS_LOGO, 'PNG', M, 5, 90, 18); } catch(e) { console.log('logo err',e); }
         doc.text('Cup Defect Inspection Report', M + 98, 21);
-        const boxW=22,boxH=22,boxX=PW-M-boxW,boxY=5;
-        setStroke('#AAAAAA'); doc.setLineWidth(0.5);
-        doc.rect(boxX,boxY,boxW,boxH,'S');
-        doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
-        doc.text(String(currentPage),boxX+boxW/2,boxY+13,{align:'center'});
-        doc.setFont('helvetica','normal'); doc.setFontSize(7); setTextC('#AAAAAA');
-        doc.text('OF '+totalPages,boxX+boxW/2,boxY+20,{align:'center'});
+        doc.setFont('helvetica','bold'); doc.setFontSize(14); setTextC('#FFFFFF');
+        const pgNumStr = String(currentPage);
+        const pgNumW = doc.getTextWidth(pgNumStr);
+        const pgNumX = PW - M - 10;
+        doc.text(pgNumStr, pgNumX, 17, { align: 'right' });
+        doc.setFont('helvetica','normal'); doc.setFontSize(10); setTextC('#AAAAAA');
+        doc.text('OF ' + totalPages, pgNumX - pgNumW / 2, 27, { align: 'center' });
          doc.rect(0,32,PW,1,'F');
-        setFill('#002660'); doc.rect(0,33,PW,14,'F');
+        setFill('#002660'); doc.rect(0,33,PW,18,'F');
         const dateStr=new Date().toLocaleDateString();
-        doc.setFont('helvetica','normal'); doc.setFontSize(8);
-        const titleW = doc.getTextWidth(title) + 16;
-        setTextC('#BBBBBB'); doc.text('WO: ', M+titleW, 43);
-        doc.setFont('helvetica','bold'); setTextC('#FFFFFF'); doc.text(wo.name, M+titleW+doc.getTextWidth('WO: '), 43);
-        const col2 = M + titleW + 90;
-        doc.setFont('helvetica','normal'); setTextC('#BBBBBB'); doc.text('Date: ', col2, 43);
-        doc.setFont('helvetica','bold'); setTextC('#FFFFFF'); doc.text(dateStr, col2+doc.getTextWidth('Date: '), 43);
-        const col3s = col2 + 90;
-        doc.setFont('helvetica','normal'); setTextC('#BBBBBB'); doc.text('Shift: ', col3s, 43);
-        doc.setFont('helvetica','bold'); setTextC('#FFFFFF'); doc.text(wo.shift || '—', col3s+doc.getTextWidth('Shift: '), 43);
-        // Title first, bold
-        doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#FFFFFF');
-        doc.text(title, M, 43);
-        setFill('#0098DB'); doc.rect(0,47,PW,2,'F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
+        doc.text(title, M, 45);
+        // Right-align WO | Date | Shift from the right margin
+        const shiftLabel='Shift: '; const shiftVal=wo.shift||'—';
+        const dateLabel='Date: '; const dateVal=dateStr;
+        const woLabel='WO: '; const woVal=wo.name;
+        doc.setFont('helvetica','bold'); doc.setFontSize(11);
+        let rx = PW - M;
+        // Shift
+        const shiftValW=doc.getTextWidth(shiftVal); setTextC('#FFFFFF'); doc.text(shiftVal, rx-shiftValW, 45); rx-=shiftValW+2;
+        doc.setFont('helvetica','normal'); const shiftLW=doc.getTextWidth(shiftLabel); setTextC('#BBBBBB'); doc.text(shiftLabel, rx-shiftLW, 45); rx-=shiftLW+12;
+        // Date
+        doc.setFont('helvetica','bold'); const dateValW=doc.getTextWidth(dateVal); setTextC('#FFFFFF'); doc.text(dateVal, rx-dateValW, 45); rx-=dateValW+2;
+        doc.setFont('helvetica','normal'); const dateLW=doc.getTextWidth(dateLabel); setTextC('#BBBBBB'); doc.text(dateLabel, rx-dateLW, 45); rx-=dateLW+12;
+        // WO
+        doc.setFont('helvetica','bold'); const woValW=doc.getTextWidth(woVal); setTextC('#FFFFFF'); doc.text(woVal, rx-woValW, 45); rx-=woValW+2;
+        doc.setFont('helvetica','normal'); const woLW=doc.getTextWidth(woLabel); setTextC('#BBBBBB'); doc.text(woLabel, rx-woLW, 45);
+        setFill('#0098DB'); doc.rect(0,51,PW,2,'F');
+        drawFooter(PW, PH, M);
     }
 
     function sectionHeader(y, label) {
       setFill('#1E3A5F'); doc.rect(M, y, CW, 18, 'F');
-      doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#FFFFFF');
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
       doc.text(label.toUpperCase(), M + 8, y + 12);
       return y + 18;
     }
@@ -1248,7 +1263,7 @@
     function statBox(x, y, w, h, label, value, bgHex) {
       setFill(bgHex); doc.rect(x, y, w, h, 'F');
       setStroke('#CCDDEE'); doc.setLineWidth(0.5); doc.rect(x, y, w, h, 'S');
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); setTextC('#555555');
+      doc.setFont('helvetica','normal'); doc.setFontSize(12); setTextC('#555555');
       doc.text(label, x + w/2, y + 14, { align: 'center' });
       doc.setFont('helvetica','bold'); doc.setFontSize(16); setTextC('#1E3A5F');
       doc.text(String(value), x + w/2, y + 38, { align: 'center' });
@@ -1257,16 +1272,16 @@
     function tableRow(cols, y, rowH, bg, textColor, bold) {
       setFill(bg); doc.rect(M, y, CW, rowH, 'F');
       doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(9); setTextC(textColor);
-      let x = M + 6;
-      cols.forEach(({ text, w }) => { doc.text(String(text ?? ''), x, y + rowH - 5); x += w; });
+      let x = M + 2;
+      cols.forEach(({ text, w }) => { doc.text(String(text ?? ''), x + 4, y + rowH - 4); x += w; });
       setStroke('#E2E8F0'); doc.setLineWidth(0.3); doc.line(M, y + rowH, M + CW, y + rowH);
     }
 
     // Like tableRow but the first column uses the defect's own color
     function tableRowDefectColored(cols, y, rowH, bg, defaultTextColor, bold) {
       setFill(bg); doc.rect(M, y, CW, rowH, 'F');
-      doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(9);
-      let x = M + 6;
+      doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(12);
+      let x = M + 2;
       cols.forEach(({ text, w, color }, idx) => {
         if (color) {
           setTextC(color);
@@ -1275,7 +1290,8 @@
           setTextC(defaultTextColor);
           doc.setFont('helvetica', bold ? 'bold' : 'normal');
         }
-        doc.text(String(text ?? ''), x, y + rowH - 5);
+        doc.setFontSize(9);
+        doc.text(String(text ?? ''), x + 4, y + rowH - 4);
         x += w;
       });
       setStroke('#E2E8F0'); doc.setLineWidth(0.3); doc.line(M, y + rowH, M + CW, y + rowH);
@@ -1283,7 +1299,7 @@
 
     // ── PAGE 1: SUMMARY ──
     pageHeader('SUMMARY', cupsPerCaseStr);
-    let y = 58;
+    let y = 62;
     
     // Calculate weight stats for the session
     let avgWeightA = 'N/A', minWeightA = 'N/A', maxWeightA = 'N/A';
@@ -1312,68 +1328,105 @@
       }
     }
     
-    const stats = [
-      { label: 'Total Cups Sorted', value: totalCupsSorted.toLocaleString(), bg: '#EFF6FF' },
-      { label: 'Total Defect Cups', value: defectCups,                        bg: '#FEF2F2' },
-      { label: 'Total Defects',     value: totalDefects,                      bg: '#FCE7F3' },
-      { label: 'Cases (' + (cupsPerCase === 10 ? '10 Pk' : cupsPerCase === 12 ? '12 Pk' : cupsPerCase === 24 ? '24 Pk' : cupsPerCase + ' Pk') + ') / 24 Pk Equiv', value: Math.round(casesMade) + ' / ' + Math.round((totalCupsSorted - defectCups) / 24), bg: '#ECFDF5' },
-      { label: 'Leakers per Million / Excl. Swell', value: Math.round(lpm).toLocaleString() + ' / ' + Math.round(lpmExcSwelling).toLocaleString(),              bg: '#FFF7ED' },
-      ...(wo.cupType === 'split' ? [
-        { label: 'Avg Weight A', value: avgWeightA, bg: '#F0F3FF' },
-        { label: 'Min/Max Weight A', value: minWeightA + ' / ' + maxWeightA, bg: '#E6F3FF' },
-        { label: 'Avg Weight B', value: avgWeightB, bg: '#FFF0F5' },
-        { label: 'Min/Max Weight B', value: minWeightB + ' / ' + maxWeightB, bg: '#FFE6F3' },
-      ] : [
-        { label: 'Avg Weight', value: avgWeightRound, bg: '#F0F3FF' },
-        { label: 'Min/Max Weight', value: minWeightRound + ' / ' + maxWeightRound, bg: '#E6F3FF' },
-      ]),
+    const yieldPct = totalCasesSorted > 0 ? (goodCases / totalCasesSorted * 100) : null;
+    const yieldBg  = yieldPct === null ? '#EFF6FF' : yieldPct >= 98 ? '#DCFCE7' : yieldPct >= 90 ? '#FEF9C3' : '#FEE2E2';
+    const yieldVal = yieldPct !== null ? yieldPct.toFixed(1) + '%' : '—';
+    const boxBg    = '#EFF6FF';
+    const stats = {
+      casesSorted:  { label: 'Cases Sorted (' + cupsPerCase + ' Pk)', value: totalCasesSorted.toLocaleString(),        bg: boxBg   },
+      goodCasesBox: { label: 'Good Cases (' + cupsPerCase + ' Pk)',   value: goodCases.toLocaleString(),                bg: boxBg   },
+      equiv24pkBox: { label: '24-Pk Equivalent',                       value: equiv24pk.toLocaleString(),                bg: boxBg   },
+      yieldBox:     { label: 'Sort Yield',                              value: yieldVal,                                  bg: yieldBg },
+      totalCupsBox: { label: 'Total Cups Sorted',                      value: totalCupsSorted.toLocaleString(),          bg: boxBg   },
+      defectCupsBox:{ label: 'Total Defect Cups',                      value: defectCups,                                bg: boxBg   },
+      totalDefBox:  { label: 'Total Defects',                          value: totalDefects,                              bg: boxBg   },
+      lpmBox:       { label: 'Leakers per Million / Excl. Swelling',   value: Math.round(lpm).toLocaleString() + ' / ' + Math.round(lpmExcSwelling).toLocaleString(), bg: boxBg },
+    };
+    const weightStats = wo.cupType === 'split' ? [
+      { label: 'Avg Weight A',     value: avgWeightA,                        bg: '#EFF6FF' },
+      { label: 'Min/Max Weight A', value: minWeightA + ' / ' + maxWeightA,   bg: '#EFF6FF' },
+      { label: 'Avg Weight B',     value: avgWeightB,                        bg: '#EFF6FF' },
+      { label: 'Min/Max Weight B', value: minWeightB + ' / ' + maxWeightB,   bg: '#EFF6FF' },
+    ] : [
+      { label: 'Avg Weight',       value: avgWeightRound,                                bg: '#EFF6FF' },
+      { label: 'Min/Max Weight',   value: minWeightRound + ' / ' + maxWeightRound,       bg: '#EFF6FF' },
     ];
-    
-    const statsColW = CW / 2 - 10;
-    const commentsColW = CW / 2 - 10;
-    
-    // LEFT COLUMN: Full width for first 2 rows
+
+    const fullPageW = CW;
+
     let statsY = y;
-    const fullPageW = CW; // Full page width
-    
-    // Row 1: Four boxes across top (FULL PAGE WIDTH)
-    const bw4Full = fullPageW / 4 - 2;
-    for (let i = 0; i < 4; i++) {
-      statBox(M + i * (bw4Full + 3), statsY, bw4Full, 50, stats[i].label, stats[i].value, stats[i].bg);
+    const bw3 = fullPageW / 3 - 2;
+
+    // Row 1a: Cases Sorted | Good Cases
+    const row1a = [stats.casesSorted, stats.goodCasesBox];
+    const bw2top = fullPageW / 2 - 2;
+    for (let i = 0; i < 2; i++) {
+      statBox(M + i * (bw2top + 4), statsY, bw2top, 50, row1a[i].label, row1a[i].value, row1a[i].bg);
     }
     statsY += 62;
-    
-    // Row 2: One large combined LPM/Cases box (FULL PAGE WIDTH)
-    statBox(M, statsY, fullPageW, 50, stats[4].label, stats[4].value, stats[4].bg);
+
+    // Row 1b: 24-Pk Equivalent | Sort Yield
+    const row1b = [stats.equiv24pkBox, stats.yieldBox];
+    for (let i = 0; i < 2; i++) {
+      statBox(M + i * (bw2top + 4), statsY, bw2top, 50, row1b[i].label, row1b[i].value, row1b[i].bg);
+    }
     statsY += 62;
-    
-    // Row 3+: Weight stats (2 boxes per row, left side only - next to comments)
-    const bw2 = statsColW / 2 - 3;
-    for (let i = 5; i < stats.length; i += 2) {
-      statBox(M + 0 * (bw2 + 5), statsY, bw2, 50, stats[i].label, stats[i].value, stats[i].bg);
-      if (i + 1 < stats.length) {
-        statBox(M + 1 * (bw2 + 5), statsY, bw2, 50, stats[i + 1].label, stats[i + 1].value, stats[i + 1].bg);
-      }
+
+    // Row 2: Total Cups | Total Defect Cups | Total Defects
+    const row2 = [stats.totalCupsBox, stats.defectCupsBox, stats.totalDefBox];
+    for (let i = 0; i < 3; i++) {
+      statBox(M + i * (bw3 + 3), statsY, bw3, 50, row2[i].label, row2[i].value, row2[i].bg);
+    }
+    statsY += 62;
+
+    // Row 3: LPM — full width, taller
+    statBox(M, statsY, fullPageW, 55, stats.lpmBox.label, stats.lpmBox.value, stats.lpmBox.bg);
+    statsY += 67;
+
+    // Row 4: Weight stats (3 across) + Target Weight
+    const bw3w = fullPageW / 3 - 2;
+    // Target weight label and value based on cup type
+    const targetWeightLabel = 'Target Weight';
+    const targetWeightValue = wo.cupType === 'split' ? '35g / side' :
+                              wo.cupType === 'round-89' ? '100g' : '71g';
+    if (wo.cupType === 'split') {
+      // Split: Avg A | Min/Max A | Target
+      statBox(M,                statsY, bw3w, 50, weightStats[0].label, weightStats[0].value, weightStats[0].bg);
+      statBox(M + bw3w + 3,     statsY, bw3w, 50, weightStats[1].label, weightStats[1].value, weightStats[1].bg);
+      statBox(M + (bw3w + 3)*2, statsY, bw3w, 50, targetWeightLabel,    targetWeightValue,     '#EFF6FF');
+      statsY += 62;
+      // Avg B | Min/Max B
+      const bw2s = fullPageW / 2 - 2;
+      statBox(M,           statsY, bw2s, 50, weightStats[2].label, weightStats[2].value, weightStats[2].bg);
+      statBox(M + bw2s + 4,statsY, bw2s, 50, weightStats[3].label, weightStats[3].value, weightStats[3].bg);
+      statsY += 62;
+    } else {
+      // Round: Avg | Min/Max | Target
+      statBox(M,                statsY, bw3w, 50, weightStats[0].label, weightStats[0].value, weightStats[0].bg);
+      statBox(M + bw3w + 3,     statsY, bw3w, 50, weightStats[1].label, weightStats[1].value, weightStats[1].bg);
+      statBox(M + (bw3w + 3)*2, statsY, bw3w, 50, targetWeightLabel,    targetWeightValue,     '#EFF6FF');
       statsY += 62;
     }
-    
-    // RIGHT COLUMN: Comments box (starts after row 2, next to weight boxes)
-    const commentsStartY = y + 62 + 62; // After rows 1 and 2
-    const commentsX = M + statsColW + 20;
-    const commentsHeight = statsY - commentsStartY - 10; // Height matches remaining weight rows
-    setFill('#1E3A5F'); doc.rect(commentsX, commentsStartY, commentsColW, 18, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#FFFFFF');
-    doc.text('COMMENTS', commentsX + 8, commentsStartY + 12);
-    
-    // Comments box background
-    setFill('#F8FAFC'); doc.rect(commentsX, commentsStartY + 18, commentsColW, commentsHeight - 18, 'F');
-    setStroke('#E2E8F0'); doc.setLineWidth(0.5); doc.rect(commentsX, commentsStartY + 18, commentsColW, commentsHeight - 18, 'S');
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); setTextC('#333333');
-    doc.text(comments || '—', commentsX + 6, commentsStartY + 26, { maxWidth: commentsColW - 12, align: 'left' });
-    
-    
-    
-    y = Math.max(statsY, commentsStartY + commentsHeight + 10);
+    y = statsY;
+
+    // ── Color key ──
+    const keyItems = [
+      { color: '#EFF6FF', label: 'All stats' },
+      { color: '#DCFCE7', label: 'Yield >=98%' },
+      { color: '#FEF9C3', label: 'Yield 90–97%' },
+      { color: '#FEE2E2', label: 'Yield <90%' },
+    ];
+    doc.setFont('helvetica','normal'); doc.setFontSize(12); setTextC('#888888');
+    let kx = M;
+    keyItems.forEach(({color, label}) => {
+      const [r,g,b] = hex2rgb(color);
+      doc.setFillColor(r,g,b); doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
+      doc.rect(kx, y, 12, 12, 'FD');
+      setTextC('#666666');
+      doc.text(label, kx + 16, y + 9);
+      kx += 16 + doc.getTextWidth(label) + 14;
+    });
+    y += 20;
     // ── Defect count by filler (full breakdown) ──
     y = sectionHeader(y, 'Defect Count by Filler') + 2;
 
@@ -1387,39 +1440,104 @@
     ];
     // Filler column sub-header — lighter blue so it's distinct from section header
     setFill('#1565C0'); doc.rect(M, y, CW, 18, 'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#FFFFFF');
+    doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
     {
       let hx = M + 6;
       headerCols.forEach(({text, w}) => {
-        doc.text(String(text), hx + w/2, y + 13, {align:'center'});
+        doc.text(String(text), hx + w/2, y + 14, {align:'center'});
         hx += w;
       });
-      setStroke('#E2E8F0'); doc.setLineWidth(0.3); doc.line(M, y+18, M+CW, y+18);
+      setStroke('#E2E8F0'); doc.setLineWidth(0.3); doc.line(M, y+20, M+CW, y+20);
     }
-    y += 18;
+    y += 20;
 
     allDefectTypes.forEach((type, i) => {
       const rowTotal = fillers.reduce((sum, f) => sum + (fillerDefectMatrix[f][type] || 0), 0);
-      const cols = [
-        { text: type, w: labelColW, color: DEFECT_COLORS[type] },
-        ...fillers.map(f => ({ text: fillerDefectMatrix[f][type] ?? 0, w: fillerColW })),
-        { text: rowTotal, w: fillerColW }
-      ];
-      tableRowDefectColored(cols, y, 16, i % 2 === 0 ? '#F8FAFC' : '#FFFFFF', '#222222', false); y += 16;
+      const bg = i % 2 === 0 ? '#F8FAFC' : '#FFFFFF';
+      setFill(bg); doc.rect(M, y, CW, 16, 'F');
+      // Defect type label — colored, left-aligned
+      const typeColor = DEFECT_COLORS[type] || '#222222';
+      setTextC(typeColor); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+      doc.text(String(type), M + 6, y + 13);
+      // Filler counts — centered
+      let cx = M + labelColW;
+      fillers.forEach(f => {
+        setTextC('#222222'); doc.setFont('helvetica','normal'); doc.setFontSize(11);
+        doc.text(String(fillerDefectMatrix[f][type] ?? 0), cx + fillerColW/2, y + 13, {align:'center'});
+        cx += fillerColW;
+      });
+      // Row total — centered
+      doc.text(String(rowTotal), cx + fillerColW/2, y + 13, {align:'center'});
+      setStroke('#E2E8F0'); doc.setLineWidth(0.3); doc.line(M, y+18, M+CW, y+18);
+      y += 18;
     });
 
-    // Totals row
+    // Totals row — centered numbers
     const grandTotal = fillers.reduce((sum, f) => sum + Object.values(fillerDefectMatrix[f]).reduce((a,b)=>a+b,0), 0);
-    const totalCols = [
-      { text: 'TOTAL', w: labelColW },
-      ...fillers.map(f => ({ text: Object.values(fillerDefectMatrix[f]).reduce((a,b)=>a+b,0), w: fillerColW })),
-      { text: grandTotal, w: fillerColW }
-    ];
-    tableRow(totalCols, y, 16, '#DBEAFE', '#1E3A5F', true); y += 16;
-    y += 16;
+    setFill('#DBEAFE'); doc.rect(M, y, CW, 18, 'F');
+    setTextC('#1E3A5F'); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text('TOTAL', M + 6, y + 13);
+    let tx = M + labelColW;
+    fillers.forEach(f => {
+      const fTotal = Object.values(fillerDefectMatrix[f]).reduce((a,b)=>a+b,0);
+      doc.text(String(fTotal), tx + fillerColW/2, y + 13, {align:'center'});
+      tx += fillerColW;
+    });
+    doc.text(String(grandTotal), tx + fillerColW/2, y + 13, {align:'center'});
+    y += 18;
+    y += 14;
 
-    // ── Composite defect overlay (all cups, top + bottom) ──
-    y = sectionHeader(y, 'Composite Defect Overview — All Cups') + 10;
+    // ── Comments box (below defect table) ──
+    if (comments) {
+      setFill('#1E3A5F'); doc.rect(M, y, CW, 18, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
+      doc.text('COMMENTS', M + 8, y + 12);
+      y += 18;
+      setFill('#F8FAFC'); doc.rect(M, y, CW, 40, 'F');
+      setStroke('#E2E8F0'); doc.setLineWidth(0.5); doc.rect(M, y, CW, 40, 'S');
+      doc.setFont('helvetica','normal'); doc.setFontSize(12); setTextC('#333333');
+      doc.text(comments, M + 8, y + 14, { maxWidth: CW - 16, align: 'left' });
+      y += 48;
+    }
+
+    // ── HEATMAP PAGE ──
+    doc.addPage([612, 792]); // portrait letter in pt
+    const LM = 40, LPW = 612, LPH = 792, LCW = LPW - LM * 2;
+    // Identical header style to pageHeader
+    { const hmDefectCount = wo.cups.filter(c => c.defects.length > 0).length;
+      const hmPhotoOverflow = hmDefectCount > 2 ? Math.ceil((hmDefectCount - 2) / 2) : 0;
+      const hmTotalPages = 3 + hmPhotoOverflow;
+      const hmPgNum = doc.internal.pages.length - 1;
+      const hmDateStr = new Date().toLocaleDateString();
+      setFill('#003478'); doc.rect(0, 0, LPW, 32, 'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); setTextC('#FFFFFF');
+      try { doc.addImage(SIMMONS_LOGO, 'PNG', LM, 5, 90, 18); } catch(e) {}
+      doc.text('Cup Defect Inspection Report', LM + 98, 21);
+      // Page number — no box, just numbers top-right
+      doc.setFont('helvetica','bold'); doc.setFontSize(14); setTextC('#FFFFFF');
+      const hmPgStr = String(hmPgNum);
+      const hmPgW = doc.getTextWidth(hmPgStr);
+      const hmPgX = LPW - LM - 10;
+      doc.text(hmPgStr, hmPgX, 17, { align: 'right' });
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); setTextC('#AAAAAA');
+      doc.text('OF ' + hmTotalPages, hmPgX - hmPgW / 2, 27, { align: 'center' });
+      doc.rect(0,32,LPW,1,'F');
+      setFill('#002660'); doc.rect(0,33,LPW,18,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(12); setTextC('#FFFFFF');
+      doc.text('COMPOSITE DEFECT HEATMAP', LM, 45);
+      // Right-align WO | Date | Shift
+      const hmShiftLabel='Shift: '; const hmShiftVal=wo.shift||'—';
+      const hmDateLabel='Date: '; const hmWoLabel='WO: '; const hmWoVal=wo.name;
+      doc.setFont('helvetica','bold'); doc.setFontSize(11);
+      let hmRx = LPW - LM;
+      const hmShiftValW=doc.getTextWidth(hmShiftVal); setTextC('#FFFFFF'); doc.text(hmShiftVal,hmRx-hmShiftValW,45); hmRx-=hmShiftValW+2;
+      doc.setFont('helvetica','normal'); const hmShiftLW=doc.getTextWidth(hmShiftLabel); setTextC('#BBBBBB'); doc.text(hmShiftLabel,hmRx-hmShiftLW,45); hmRx-=hmShiftLW+12;
+      doc.setFont('helvetica','bold'); const hmDateValW=doc.getTextWidth(hmDateStr); setTextC('#FFFFFF'); doc.text(hmDateStr,hmRx-hmDateValW,45); hmRx-=hmDateValW+2;
+      doc.setFont('helvetica','normal'); const hmDateLW=doc.getTextWidth(hmDateLabel); setTextC('#BBBBBB'); doc.text(hmDateLabel,hmRx-hmDateLW,45); hmRx-=hmDateLW+12;
+      doc.setFont('helvetica','bold'); const hmWoValW=doc.getTextWidth(hmWoVal); setTextC('#FFFFFF'); doc.text(hmWoVal,hmRx-hmWoValW,45); hmRx-=hmWoValW+2;
+      doc.setFont('helvetica','normal'); const hmWoLW=doc.getTextWidth(hmWoLabel); setTextC('#BBBBBB'); doc.text(hmWoLabel,hmRx-hmWoLW,45);
+      setFill('#0098DB'); doc.rect(0,51,LPW,2,'F');
+      drawFooter(LPW, LPH, LM); }
 
     const allTopDefects    = [];
     const allBottomDefects = [];
@@ -1430,143 +1548,81 @@
       });
     });
 
-    // Use 280x220 canvas (same as page 2) for consistent coordinate mapping
+    // Render composite canvases at high resolution
     const compTopC = document.createElement('canvas');
     compTopC.width = 280; compTopC.height = 220;
-    const compCupTop = { ...wo.cups[0], defects: allTopDefects };
-    drawCup(compTopC, compCupTop, 'top');
+    drawCup(compTopC, { ...wo.cups[0], defects: allTopDefects }, 'top');
 
     const compBotC = document.createElement('canvas');
     compBotC.width = 280; compBotC.height = 220;
-    const compCupBot = { ...wo.cups[0], defects: allBottomDefects };
-    drawCup(compBotC, compCupBot, 'bottom');
+    drawCup(compBotC, { ...wo.cups[0], defects: allBottomDefects }, 'bottom');
 
-    const compImgW = CW / 2 - 12;
-    const compImgH = compImgW * 220 / 280;
+    // Each image takes just under half the landscape page width
+    // Portrait: stacked diagrams left, legend column right
+    const hmLegW  = 90;                                   // legend column width
+    const hmGap   = 14;                                   // gap between diagrams
+    const hmY     = 58;                                   // start below header (matches pageHeader height)
+    const availH  = LPH - hmY - 20;                      // vertical space for both images
+    const hmImgH  = Math.floor((availH - hmGap - 18 - 18) / 2); // each image height (minus labels + gap)
+    const hmImgW  = Math.floor(hmImgH * 280 / 220);      // preserve aspect ratio
 
-    if (y + compImgH + 50 > PH - 40) {
-      doc.addPage();
-      pageHeader('SUMMARY (CONT.)');
-      y = 58;
+    // ── Top View ──
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setTextC('#1E3A5F');
+    doc.text(`Top View  (${allTopDefects.length} defect${allTopDefects.length !== 1 ? 's' : ''})`,
+      LM + hmImgW / 2, hmY + 6, { align: 'center' });
+    doc.addImage(compTopC.toDataURL('image/png'), 'PNG', LM, hmY + 14, hmImgW, hmImgH);
+    // Crisp A/B labels — only for split cup
+    if (wo.cupType === 'split') {
+      doc.setFont('helvetica','bold'); doc.setFontSize(22); setTextC('#003478');
+      doc.text('A', LM + 10, hmY + 14 + hmImgH * 0.28);
+      doc.text('B', LM + hmImgW - 10, hmY + 14 + hmImgH * 0.28, { align: 'right' });
+    }
+    setStroke('#CCCCCC'); doc.setLineWidth(0.5);
+    // ── Bottom View ──
+    const hmY2 = hmY + 14 + hmImgH + hmGap;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); setTextC('#1E3A5F');
+    doc.text(`Bottom View  (${allBottomDefects.length} defect${allBottomDefects.length !== 1 ? 's' : ''})`,
+      LM + hmImgW / 2, hmY2, { align: 'center' });
+    doc.addImage(compBotC.toDataURL('image/png'), 'PNG', LM, hmY2 + 6, hmImgW, hmImgH);
+    // Crisp A/B labels — only for split cup
+    if (wo.cupType === 'split') {
+      doc.setFont('helvetica','bold'); doc.setFontSize(22); setTextC('#003478');
+      doc.text('A', LM + 10, hmY2 + 6 + hmImgH * 0.28);
+      doc.text('B', LM + hmImgW - 10, hmY2 + 6 + hmImgH * 0.28, { align: 'right' });
     }
 
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#1E3A5F');
-    doc.text(`Top View  (${allTopDefects.length} defect${allTopDefects.length !== 1 ? 's' : ''})`,
-      M + compImgW / 2, y, { align: 'center' });
-    doc.text(`Bottom View  (${allBottomDefects.length} defect${allBottomDefects.length !== 1 ? 's' : ''})`,
-      M + compImgW + 24 + compImgW / 2, y, { align: 'center' });
-    y += 8;
 
-    doc.addImage(compTopC.toDataURL('image/png'), 'PNG', M,                 y, compImgW, compImgH);
-    doc.addImage(compBotC.toDataURL('image/png'), 'PNG', M + compImgW + 24, y, compImgW, compImgH);
-
-    setStroke('#CCCCCC'); doc.setLineWidth(0.5);
-    doc.rect(M,                 y, compImgW, compImgH, 'S');
-    doc.rect(M + compImgW + 24, y, compImgW, compImgH, 'S');
-    y += compImgH + 8;
-
-    // Colour legend
-    doc.setFont('helvetica','bold'); doc.setFontSize(8); setTextC('#555555');
-    doc.text('Legend:', M, y + 8);
-    let lx = M + 42;
+    // ── Legend column (right of diagrams) ──
+    const legX = LM + hmImgW + 10;
+    let legY = hmY + 14;
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#555555');
+    doc.text('Legend', legX, legY); legY += 14;
     Object.entries(DEFECT_COLORS).forEach(([type, color]) => {
       const [r,g,b] = hex2rgb(color);
       doc.setFillColor(r,g,b);
-      doc.ellipse(lx + 4, y + 5, 3, 3, 'F');
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); setTextC('#333333');
-      doc.text(type, lx + 10, y + 8);
-      lx += doc.getTextWidth(type) + 20;
-      if (lx > PW - M - 60) { lx = M + 42; y += 12; }
+      doc.ellipse(legX + 4, legY - 3, 3.5, 3.5, 'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); setTextC('#333333');
+      doc.text(type, legX + 12, legY);
+      legY += 13;
     });
-    y += 18;
+    y = hmY2 + 6 + hmImgH + 20;
 
-
-    // ── Defect rate by cup number (mini bar chart) ──
-    if (wo.cups.length > 1) {
-      y = sectionHeader(y, 'Defect Rate by Cup Number') + 8;
-      const chartW = CW; const chartH = 60;
-      const barW = Math.min(Math.floor(chartW / wo.cups.length) - 1, 20);
-      const barSpacing = Math.floor(chartW / wo.cups.length);
-      wo.cups.forEach((cup, i) => {
-        const hasDefect = cup.defects.length > 0;
-        const barH = hasDefect ? Math.min(cup.defects.length * 12, chartH - 10) : 4;
-        const bx = M + i * barSpacing;
-        const by = y + chartH - barH;
-        setFill(hasDefect ? '#0098DB' : '#E2E8F0');
-        doc.rect(bx, by, Math.max(barW, 3), barH, 'F');
-        if (cup.defects.length > 0) {
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); setTextC('#003478');
-          doc.text(String(cup.defects.length), bx + barSpacing/2, by - 2, { align: 'center' });
-        }
-        if (wo.cups.length <= 30 || i % Math.ceil(wo.cups.length/20) === 0) {
-          doc.setFont('helvetica','normal'); doc.setFontSize(6.5); setTextC('#888888');
-          doc.text(String(cup.number), bx + barSpacing/2, y + chartH + 7, { align: 'center' });
-        }
-      });
-      y += chartH + 14;
-    }
-
-    // ── PAGE 2: CUP PHOTOS ──
-    doc.addPage();
-    pageHeader('CUP DEFECT PHOTOS');
-    y = 58;
-    const defectCupsList = wo.cups.filter(c => c.defects.length > 0);
-    if (defectCupsList.length === 0) {
-      doc.setFont('helvetica','italic'); doc.setFontSize(9); setTextC('#999999');
-      doc.text('No defect cups recorded in this session.', M, y + 20);
-    } else {
-      for (const cup of defectCupsList) {
-        if (y + 220 > PH - 40) { doc.addPage(); pageHeader('Cup Defect Photos (cont.)'); y = 58; }
-        setFill('#EFF6FF'); doc.rect(M, y, CW, 16, 'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(9); setTextC('#1E3A5F');
-        const weightStr = wo.cupType === 'split' 
-          ? ` | Wt A/B: ${cup.weight?.A||'—'}/${cup.weight?.B||'—'} g`
-          : ` | Weight: ${cup.weight||'—'} g`;
-        doc.text(`Cup #${cup.number}  |  Filler: ${cup.filler}  |  Time: ${cup.timestamp}${weightStr}  |  Defects: ${cup.defects.length}`, M + 6, y + 11);
-        y += 20;
-
-        const topC = document.createElement('canvas'); topC.width = 280; topC.height = 220;
-        drawCup(topC, cup, 'top');
-        const botC = document.createElement('canvas'); botC.width = 280; botC.height = 220;
-        drawCup(botC, cup, 'bottom');
-
-        const imgW = CW / 2 - 10;
-        const imgH = imgW * 220 / 280;
-
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); setTextC('#555555');
-        doc.text('Top View', M + imgW/2, y + 10, { align: 'center' });
-        doc.text('Bottom View', M + imgW + 20 + imgW/2, y + 10, { align: 'center' });
-        y += 14;
-
-        doc.addImage(topC.toDataURL('image/png'), 'PNG', M, y, imgW, imgH);
-        doc.addImage(botC.toDataURL('image/png'), 'PNG', M + imgW + 20, y, imgW, imgH);
-        y += imgH + 8;
-
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); setTextC('#333333');
-        doc.text('#', M, y+8); doc.text('Defect Type', M+20, y+8); doc.text('View', M+180, y+8);
-        setStroke('#CCCCCC'); doc.setLineWidth(0.3); doc.line(M, y+10, M+CW, y+10);
-        y += 14;
-        cup.defects.forEach((d,i) => {
-          const defectColor = DEFECT_COLORS[d.type] || '#888888';
-          const [r,g,b] = hex2rgb(defectColor);
-          doc.setFillColor(r,g,b); doc.ellipse(M+4, y+4, 3, 3, 'F');
-          doc.setFont('helvetica','normal'); doc.setFontSize(8);
-          setTextC('#333333'); doc.text(String(i+1), M+10, y+8);
-          setTextC(defectColor); doc.setFont('helvetica','bold'); doc.text(d.type, M+20, y+8);
-          setTextC('#333333'); doc.setFont('helvetica','normal'); doc.text(d.view, M+180, y+8);
-          y += 12;
-        });
-        y += 14;
-      }
-    }
-
-    // ── PAGE 3: RAW DATA TABLE ──
-    doc.addPage();
+    // ── PAGE 2: RAW DATA TABLE ──
+    doc.addPage([612, 792]); // portrait letter in pt
     pageHeader('RAW DATA');
-    y = 58;
-    const rcols = wo.cupType === 'split' 
-      ? [{label:'Cup #',w:32},{label:'Filler',w:40},{label:'Time',w:36},{label:'Weight A (g)',w:42},{label:'Weight B (g)',w:42},{label:'Shift',w:36},{label:'Defect Type',w:80},{label:'View',w:36},{label:'Quadrant',w:52},{label:'Total',w:36},{label:'X',w:28},{label:'Y',w:28}]
-      : [{label:'Cup #',w:32},{label:'Filler',w:40},{label:'Time',w:36},{label:'Weight (g)',w:42},{label:'Shift',w:36},{label:'Defect Type',w:100},{label:'View',w:36},{label:'Quadrant',w:62},{label:'Total',w:36},{label:'X',w:28},{label:'Y',w:28}];
+    y = 62;
+
+    // Compute col widths proportionally to fill CW exactly
+    const splitRatios = [0.06, 0.08, 0.07, 0.07, 0.07, 0.06, 0.26, 0.08, 0.17, 0.08];
+    const roundRatios = [0.06, 0.08, 0.07, 0.07, 0.06, 0.30, 0.08, 0.18, 0.10];
+    const splitLabels = ['Cup #','Filler','Time','Wt A (g)','Wt B (g)','Shift','Defect Type','View','Quadrant','Total'];
+    const roundLabels = ['Cup #','Filler','Time','Wt (g)','Shift','Defect Type','View','Quadrant','Total'];
+    const ratios = wo.cupType === 'split' ? splitRatios : roundRatios;
+    const labels = wo.cupType === 'split' ? splitLabels : roundLabels;
+    const rcols = labels.map((label, i) => ({ label, w: Math.floor(CW * ratios[i]) }));
+    // Distribute any rounding remainder to the last col
+    const rcolsTotal = rcols.reduce((s,c)=>s+c.w,0);
+    rcols[rcols.length-1].w += CW - rcolsTotal;
     tableRow(rcols.map(c=>({text:c.label,w:c.w})), y, 16, '#1E3A5F', '#FFFFFF', true); y += 16;
     let ri = 0;
     wo.cups.forEach(cup => {
@@ -1581,23 +1637,28 @@
             return {type:d.type,view:d.view,x:Math.round(d.x),y:Math.round(d.y),quadrant:qy+'-'+qx};
           });
       rows.forEach((row, rowIdx) => {
-        if (y + 14 > PH - 40) { doc.addPage(); pageHeader('Raw Data (cont.)'); y = 58; tableRow(rcols.map(c=>({text:c.label,w:c.w})), y, 16, '#1E3A5F', '#FFFFFF', true); y += 16; ri = 0; }
+        if (y + 14 > PH - 40) { doc.addPage(); pageHeader('Raw Data (cont.)'); y = 62; tableRow(rcols.map(c=>({text:c.label,w:c.w})), y, 16, '#1E3A5F', '#FFFFFF', true); y += 16; ri = 0; }
+        // Build row data using same rcols widths
+        const cw = rcols.map(c=>c.w);
         const baseRowData = [
-          {text:cup.number,                                                      w:32},
-          {text:cup.filler||'—',                                                 w:40},
-          {text:cup.timestamp||'—',                                              w:36},
+          {text:cup.number,         w:cw[0]},
+          {text:cup.filler||'—',    w:cw[1]},
+          {text:cup.timestamp||'—', w:cw[2]},
         ];
         const weightRowData = wo.cupType === 'split'
-          ? [{text:cup.weight?.A||'—', w:42}, {text:cup.weight?.B||'—', w:42}]
-          : [{text:cup.weight||'—', w:42}];
+          ? [{text:cup.weight?.A||'—', w:cw[3]}, {text:cup.weight?.B||'—', w:cw[4]}]
+          : [{text:cup.weight||'—', w:cw[3]}];
+        const shiftIdx   = wo.cupType === 'split' ? 5 : 4;
+        const typeIdx    = shiftIdx + 1;
+        const viewIdx    = typeIdx + 1;
+        const quadIdx    = viewIdx + 1;
+        const totalIdx   = quadIdx + 1;
         const restRowData = [
-          {text:shift,                                                            w:36},
-          {text:row.type, color: row.type !== 'No defects' ? DEFECT_COLORS[row.type] : null, w: wo.cupType === 'split' ? 80 : 100},
-          {text:row.view,                                                         w:36},
-          {text:row.quadrant||'—',                                                w: wo.cupType === 'split' ? 52 : 62},
-          {text: rowIdx === 0 ? defectCount || '—' : '', w:36},
-          {text:row.x,                                                            w:28},
-          {text:row.y,                                                            w:28},
+          {text:shift,                                                                                           w:cw[shiftIdx]},
+          {text:row.type, color: row.type !== 'No defects' ? DEFECT_COLORS[row.type] : null,                   w:cw[typeIdx]},
+          {text:row.view,                                                                                        w:cw[viewIdx]},
+          {text:row.quadrant||'—',                                                                               w:cw[quadIdx]},
+          {text: rowIdx === 0 ? defectCount || '—' : '',                                                        w:cw[totalIdx]},
         ];
         tableRowDefectColored([...baseRowData, ...weightRowData, ...restRowData], y, 14, ri%2===0?'#F8FAFC':'#FFFFFF', '#222222', false);
         y += 14; ri++;
@@ -1627,13 +1688,16 @@
         wo: wo.name,
         shift: wo.shift||'—',
         cupType: wo.cupTypeLabel,
+        totalCases: totalCasesSorted,
         totalCups: totalCupsSorted,
+        goodCases: goodCases,
         defectCups: defectCups,
         totalDefects: totalDefects,
         cupsPerCase: cupsPerCase,
         lpm: lpm,
         lpmExcSwelling: lpmExcSwelling,
         casesMade: casesMade,
+        equiv24pk: equiv24pk,
         defectTypeCounts: defectTypeCounts,
         fillers: fillers,
         fillerDefectMatrix: fillerDefectMatrix,
@@ -1649,7 +1713,70 @@
   }
 
   // Both buttons are already wired via onclick attributes; guard against null here.
-  document.addEventListener('DOMContentLoaded', function() {
+
+  // ── Mock Report Generator ──
+  async function generateMockReports() {
+    const types = [
+      { type: 'split',    label: 'Split Cup',        cupsPerCase: 12, wo: '5120-MOCK-SPLIT' },
+      { type: 'round-89', label: 'Round Cup (89 mm)', cupsPerCase: 10, wo: '5120-MOCK-89MM'  },
+      { type: 'round-76', label: 'Round Cup (76 mm)', cupsPerCase: 12, wo: '5120-MOCK-76MM'  },
+    ];
+    for (const t of types) {
+      // Build a mock workorder with 2 cups, one with defects
+      const mockWO = {
+        name: t.wo,
+        shift: '1st',
+        cupType: t.type,
+        cupTypeLabel: t.label,
+        cups: [
+          { id: 'c1', number: 1, type: t.type, filler: 'M51', timestamp: '0800',
+            weight: t.type === 'split' ? { A: '78', B: '78' } : '78',
+            defects: [
+              { type: 'Cut/hole',     view: 'top',    x: 80,  y: 60  },
+              { type: 'Swelling',     view: 'top',    x: 180, y: 90  },
+              { type: 'Delamination', view: 'bottom', x: 100, y: 150 },
+            ]
+          },
+          { id: 'c2', number: 2, type: t.type, filler: 'M52', timestamp: '0830',
+            weight: t.type === 'split' ? { A: '76', B: '80' } : '76',
+            defects: [
+              { type: 'Misaligned lid',  view: 'top',    x: 140, y: 55  },
+              { type: 'Incomplete seal', view: 'bottom', x: 130, y: 160 },
+            ]
+          },
+          { id: 'c3', number: 3, type: t.type, filler: 'M51', timestamp: '0900',
+            weight: t.type === 'split' ? { A: '79', B: '77' } : '79',
+            defects: []
+          },
+        ]
+      };
+
+      // Temporarily swap workorders
+      const savedWO = workorders.slice();
+      workorders = [mockWO];
+
+      // Set mock summary values via hidden inputs
+      document.getElementById('totalCupsInput').value    = '500';
+      document.getElementById('cupsPerCaseInput').value  = String(t.cupsPerCase);
+      document.getElementById('goodCasesInput').value    = '488';
+      document.getElementById('commentsInput').value     = 'Mock report — ' + t.label;
+
+      await confirmExport();
+
+      // Restore
+      workorders = savedWO;
+      document.getElementById('totalCupsInput').value   = '';
+      document.getElementById('cupsPerCaseInput').value = '';
+      document.getElementById('goodCasesInput').value   = '';
+      document.getElementById('commentsInput').value    = '';
+
+      // Small delay between exports
+      await new Promise(r => setTimeout(r, 800));
+    }
+    alert('Mock reports generated for all 3 cup types.');
+  }
+
+    document.addEventListener('DOMContentLoaded', function() {
     var sb = document.getElementById('startBtn');
     if (sb) sb.addEventListener('click', openStartModal);
     var eb = document.getElementById('endBtn');
@@ -1775,13 +1902,13 @@
         try{ doc.addImage(SIMMONS_LOGO,'PNG',M,4,80,16); }catch(e){}
         doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
         doc.text('Cup Defect Inspection Report',M+88,19);
-        doc.setFont('helvetica','normal'); doc.setFontSize(8); tc('#BBBBBB');
+        doc.setFont('helvetica','normal'); doc.setFontSize(12); tc('#BBBBBB');
         doc.text((si+1)+' of '+hist.length,PW-M,19,{align:'right'});
 
         // ── INFO STRIP ──
         fill('#002660'); doc.rect(0,30,PW,13,'F');
         fill('#0098DB'); doc.rect(0,43,PW,2,'F');
-        doc.setFontSize(8);
+        doc.setFontSize(12);
         const infoItems=[['WO:',safe(h.wo)],['Date:',safe(h.date)],['Shift:',safe(h.shift)],
           ['Cup Type:',safe(h.cupType)],['Cups/Case:',safe(h.cupsPerCase)]];
         let ix=M;
@@ -1795,12 +1922,12 @@
 
         // ── STAT CARDS ──
         const stats=[
-          {l:'Total Cups',v:safe(h.totalCups),bg:'#EFF6FF',c:'#1E3A5F'},
+          {l:'Cases Sorted',v:safe(h.totalCases||Math.round(h.totalCups/h.cupsPerCase)),bg:'#EFF6FF',c:'#1E3A5F'},
+          {l:'Total Cups',v:safe(h.totalCups),bg:'#E0EEFF',c:'#1E3A5F'},
           {l:'Defect Cups',v:safe(h.defectCups),bg:'#FEF2F2',c:'#991B1B'},
-          {l:'Total Defects',v:safe(h.totalDefects),bg:'#FEF2F2',c:'#991B1B'},
-          {l:'Cases Made',v:safe(h.casesMade),bg:'#F0FDF4',c:'#065F46'},
+          {l:'Good Cases',v:safe(h.goodCases||Math.round(h.casesMade)),bg:'#F0FDF4',c:'#065F46'},
+          {l:'24-Pk Equiv',v:safe(h.equiv24pk||Math.round((h.goodCases||h.casesMade)*h.cupsPerCase/24)),bg:'#D1FAE5',c:'#065F46'},
           {l:'LPM',v:safe((h.lpm||0).toLocaleString()),bg:'#FFF7ED',c:'#92400E'},
-          {l:'LPM Excl. Swell',v:safe(((h.lpmExcSwelling||h.lpm)||0).toLocaleString()),bg:'#FFF7ED',c:'#92400E'},
         ];
         const cardW=Math.floor((CW-10)/6);
         const cardH=38;
@@ -1808,7 +1935,7 @@
           const cx=M+i*(cardW+2);
           fill(bg); doc.rect(cx,y,cardW,cardH,'F');
           sc('#E2E8F0'); doc.setLineWidth(0.4); doc.rect(cx,y,cardW,cardH,'S');
-          doc.setFont('helvetica','normal'); doc.setFontSize(7); tc('#666');
+          doc.setFont('helvetica','normal'); doc.setFontSize(12); tc('#666');
           doc.text(l,cx+cardW/2,y+10,{align:'center'});
           doc.setFont('helvetica','bold'); doc.setFontSize(13); tc(c);
           doc.text(v,cx+cardW/2,y+28,{align:'center'});
@@ -1822,12 +1949,12 @@
 
         // Filler table
         fill('#1E3A5F'); doc.rect(M,y,col1W,14,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); tc('#FFFFFF');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
         doc.text('DEFECT COUNT BY FILLER',M+4,y+10);
         y+=14;
         const fw=[col1W*0.44,col1W*0.19,col1W*0.19,col1W*0.18];
         fill('#1565C0'); doc.rect(M,y,col1W,13,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); tc('#FFFFFF');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
         let fx=M+3;
         ['Defect Type','M51','M52','Total'].forEach((lbl,i)=>{
           if(i===0) doc.text(lbl,fx+2,y+9);
@@ -1842,7 +1969,7 @@
           fill(i%2===0?'#F8FAFC':'#FFFFFF'); doc.rect(M,y,col1W,12,'F');
           sc('#E2E8F0'); doc.setLineWidth(0.2); doc.line(M,y+12,M+col1W,y+12);
           const[r,g,b]=h2r(DTYPE_COLORS[type]||'#888888');
-          doc.setTextColor(r,g,b); doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+          doc.setTextColor(r,g,b); doc.setFont('helvetica','bold'); doc.setFontSize(12);
           fx=M+3; doc.text(type,fx+2,y+8.5); fx+=fw[0];
           tc('#333'); doc.setFont('helvetica','normal');
           doc.text(safe(m51),fx+fw[1]/2,y+8.5,{align:'center'}); fx+=fw[1];
@@ -1854,7 +1981,7 @@
         const totM51=ALL_TYPES.reduce((s,t)=>s+(h.fillerDefectMatrix&&h.fillerDefectMatrix.M51?+(h.fillerDefectMatrix.M51[t]||0):0),0);
         const totM52=ALL_TYPES.reduce((s,t)=>s+(h.fillerDefectMatrix&&h.fillerDefectMatrix.M52?+(h.fillerDefectMatrix.M52[t]||0):0),0);
         fill('#DBEAFE'); doc.rect(M,y,col1W,13,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); tc('#1E3A5F');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#1E3A5F');
         fx=M+3;
         doc.text('TOTAL',fx+2,y+9.5); fx+=fw[0];
         doc.text(safe(totM51),fx+fw[1]/2,y+9.5,{align:'center'}); fx+=fw[1];
@@ -1865,7 +1992,7 @@
         // Defect bar chart (right side, same top as filler table)
         const chartX=M+col1W+8;
         fill('#1E3A5F'); doc.rect(chartX,row2Y,col2W,14,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); tc('#FFFFFF');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
         doc.text('DEFECT TYPE BREAKDOWN',chartX+4,row2Y+10);
         const chartTop=row2Y+14;
         const chartH=fillerTableBottom-chartTop;
@@ -1884,13 +2011,13 @@
             const[r,g,b]=h2r(DTYPE_COLORS[type]||'#888888');
             doc.setFillColor(r,g,b);
             doc.rect(chartX+52,by,bw,barH,'F');
-            tc('#555'); doc.setFont('helvetica','normal'); doc.setFontSize(7);
+            tc('#555'); doc.setFont('helvetica','normal'); doc.setFontSize(12);
             doc.text(type,chartX+50,by+barH-2,{align:'right'});
             doc.setFont('helvetica','bold'); tc('#333');
             doc.text(safe(cnt),chartX+54+bw,by+barH-2);
           });
         } else {
-          tc('#aaaaaa'); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+          tc('#aaaaaa'); doc.setFont('helvetica','normal'); doc.setFontSize(12);
           doc.text('No defects recorded',chartX+col2W/2,chartTop+chartH/2,{align:'center'});
         }
 
@@ -1902,7 +2029,7 @@
 
         // Section headers for both
         fill('#1E3A5F'); doc.rect(M,row3Y,col1W,14,'F');
-        doc.setFont('helvetica','bold'); doc.setFontSize(8); tc('#FFFFFF');
+        doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
         doc.text('DEFECT LOCATION BY QUADRANT',M+4,row3Y+10);
 
         fill('#1E3A5F'); doc.rect(chartX,row3Y,col2W,14,'F');
@@ -1936,11 +2063,11 @@
           doc.setFillColor(rv,gv,bv);
           doc.rect(qx,qy,quadW,quadH2,'F');
           sc('#dddddd'); doc.setLineWidth(0.3); doc.rect(qx,qy,quadW,quadH2,'S');
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); tc('#333');
+          doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#333');
           doc.text(q,qx+quadW/2,qy+10,{align:'center'});
           doc.setFontSize(16); tc(cnt>0?'#991B1B':'#999');
           doc.text(safe(cnt),qx+quadW/2,qy+Math.floor(quadH2*0.62),{align:'center'});
-          doc.setFontSize(7); tc('#666');
+          doc.setFontSize(12); tc('#666');
           doc.text(safe(pct)+'% of defects',qx+quadW/2,qy+quadH2-4,{align:'center'});
         });
         sc('#cccccc'); doc.setLineWidth(0.5);
@@ -1965,13 +2092,13 @@
         const remainH=PH-y-20;
         if(remainH>36 && h.cups && h.cups.some(c=>(c.defects||[]).length>0)){
           fill('#1E3A5F'); doc.rect(M,y,CW,14,'F');
-          doc.setFont('helvetica','bold'); doc.setFontSize(8); tc('#FFFFFF');
+          doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
           doc.text('DEFECT LOG',M+4,y+10);
           y+=14;
           const dcols=[{l:'Cup#',w:26},{l:'Filler',w:32},{l:'Time',w:32},{l:'Defect Type',w:88},
             {l:'View',w:28},{l:'Quadrant',w:56},{l:'X',w:22},{l:'Y',w:22}];
           fill('#2C4A7C'); doc.rect(M,y,CW,12,'F');
-          doc.setFont('helvetica','bold'); doc.setFontSize(7); tc('#FFFFFF');
+          doc.setFont('helvetica','bold'); doc.setFontSize(12); tc('#FFFFFF');
           let dx=M+3;
           dcols.forEach(({l,w})=>{ doc.text(l,dx,y+9); dx+=w; });
           y+=12;
@@ -1989,7 +2116,7 @@
               dcols.forEach(({w},ci)=>{
                 if(ci===3){const[r,g,b]=h2r(DTYPE_COLORS[d.type]||'#888888');doc.setTextColor(r,g,b);doc.setFont('helvetica','bold');}
                 else{tc('#333');doc.setFont('helvetica','normal');}
-                doc.setFontSize(7);
+                doc.setFontSize(12);
                 doc.text(rowData[ci],dx,y+8);
                 dx+=w;
               });
@@ -2001,7 +2128,7 @@
         // ── FOOTER ──
         fill('#F1F5F9'); doc.rect(0,PH-16,PW,16,'F');
         sc('#CBD5E1'); doc.setLineWidth(0.3); doc.line(0,PH-16,PW,PH-16);
-        doc.setFont('helvetica','normal'); doc.setFontSize(7); tc('#94A3B8');
+        doc.setFont('helvetica','normal'); doc.setFontSize(12); tc('#94A3B8');
         doc.text('Simmons Pet Food — Flex Plant Cup Defect Inspection  |  '+safe(h.wo)+'  |  '+safe(h.date)+'  |  '+safe(h.shift)+' Shift',M,PH-5);
         doc.text('Generated '+new Date().toLocaleString(),PW-M,PH-5,{align:'right'});
       }
@@ -2129,7 +2256,7 @@
     if(!confirm('This will add sample sessions to your history for testing. Continue?')) return;
     const types=['Cut/hole','Delamination','Double lid','Incomplete seal','Crack','Dent','Swelling'];
     const cups=['Split Cup','Round Cup (89 mm)','Round Cup (76 mm)'];
-    const shifts=['Day','Mid','Night'];
+    const shifts=['1st','2nd','3rd','4th'];
     const fillers=['M51','M52'];
     const sample=[];
     for(let i=0;i<10;i++){
@@ -2220,8 +2347,8 @@
   function exportHistoryCSV(){
     const hist=JSON.parse(localStorage.getItem('cup_defect_history')||'[]');
     if(!hist.length){alert('No session history to export.');return;}
-    const headers=['Date','Time','Work Order','Shift','Cup Type','Total Cups','Defect Cups','Total Defects','Cups/Case','Cases Made','LPM','LPM Excl Swell'];
-    const rows=hist.map(h=>[h.date,h.time||'',h.wo,h.shift||'',h.cupType,h.totalCups,h.defectCups,h.totalDefects,h.cupsPerCase,h.casesMade,h.lpm,h.lpmExcSwelling||h.lpm]);
+    const headers=['Date','Time','Work Order','Shift','Cup Type','Cases Sorted','Total Cups','Defect Cups','Total Defects','Cups/Case','Good Cases','24-Pk Equiv','LPM','LPM Excl Swell'];
+    const rows=hist.map(h=>[h.date,h.time||'',h.wo,h.shift||'',h.cupType,h.totalCases||Math.round(h.totalCups/h.cupsPerCase),h.totalCups,h.defectCups,h.totalDefects,h.cupsPerCase,Math.round(h.casesMade),h.equiv24pk||Math.round(h.totalCups/24),h.lpm,h.lpmExcSwelling||h.lpm]);
     const csv=[headers,...rows].map(r=>r.map(v=>'"'+String(v||'').replace(/"/g,'""')+'"').join(',')).join('\n');
     const blob=new Blob([csv],{type:'text/csv'});
     const url=URL.createObjectURL(blob);
@@ -2307,10 +2434,10 @@
       {l:'Avg LPM',v:avgLpm.toLocaleString(),bg:'#FFF7ED',c:'#92400E'},
       {l:'Best LPM',v:bestLpm.toLocaleString(),bg:'#ECFDF5',c:'#065F46'},
       {l:'Total defects',v:totDef.toLocaleString(),bg:'#FEF2F2',c:'#991B1B'},
-      {l:'Avg Weight A',v:avgWeightA+'g',bg:'#F0F3FF',c:'#1E3A5F'},
-      {l:'Min/Max A',v:minWeightA+'/'+maxWeightA+'g',bg:'#F0F3FF',c:'#1E3A5F'},
-      {l:'Avg Weight B',v:avgWeightB+'g',bg:'#FFF0F5',c:'#7C3AED'},
-      {l:'Min/Max B',v:minWeightB+'/'+maxWeightB+'g',bg:'#FFF0F5',c:'#7C3AED'},
+      {l:'Avg Weight A',v:avgWeightA+'g',bg:'#EFF6FF',c:'#1E3A5F'},
+      {l:'Min/Max A',v:minWeightA+'/'+maxWeightA+'g',bg:'#EFF6FF',c:'#1E3A5F'},
+      {l:'Avg Weight B',v:avgWeightB+'g',bg:'#EFF6FF',c:'#1E3A5F'},
+      {l:'Min/Max B',v:minWeightB+'/'+maxWeightB+'g',bg:'#EFF6FF',c:'#1E3A5F'},
     ].map(c=>`<div style="background:${c.bg};border-radius:8px;padding:10px 12px"><div style="font-size:11px;color:${c.c};opacity:0.7;margin-bottom:3px">${c.l}</div><div style="font-size:22px;font-weight:700;color:${c.c}">${c.v}</div></div>`).join('');
 
     // ── LPM TREND ──
@@ -2355,7 +2482,7 @@
       </div>`).join('');
 
     // ── SHIFT BREAKDOWN ──
-    const shiftData={Day:{defects:0,sessions:0},Mid:{defects:0,sessions:0},Night:{defects:0,sessions:0}};
+    const shiftData={'1st':{defects:0,sessions:0},'2nd':{defects:0,sessions:0},'3rd':{defects:0,sessions:0},'4th':{defects:0,sessions:0}};
     hist.forEach(h=>{const s=h.shift||'—';if(shiftData[s]){shiftData[s].defects+=h.totalDefects;shiftData[s].sessions++;}});
     const maxShift=Math.max(...Object.values(shiftData).map(s=>s.sessions?s.defects/s.sessions:0),1);
     const shiftColors={Day:'#EF9F27',Mid:'#0098DB',Night:'#003478'};
@@ -2413,7 +2540,8 @@
         <div style="flex:0 0 80px">WO</div>
         <div style="flex:0 0 44px">Shift</div>
         <div style="flex:1">Cup type</div>
-        <div style="flex:0 0 60px;text-align:right">Cups</div>
+        <div style="flex:0 0 56px;text-align:right">Cases</div>
+        <div style="flex:0 0 56px;text-align:right">24-Pk</div>
         <div style="flex:0 0 52px;text-align:right">Defects</div>
         <div style="flex:0 0 64px;text-align:right">LPM</div>
       </div>`+
@@ -2423,7 +2551,8 @@
         <div style="flex:0 0 80px;font-weight:600;color:#1E3A5F">${h.wo}</div>
         <div style="flex:0 0 44px;color:#555">${h.shift||'—'}</div>
         <div style="flex:1;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.cupType}</div>
-        <div style="flex:0 0 60px;text-align:right;color:#555">${h.totalCups}</div>
+        <div style="flex:0 0 56px;text-align:right;color:#555">${h.totalCases||Math.round(h.totalCups/h.cupsPerCase)}</div>
+        <div style="flex:0 0 56px;text-align:right;color:#065F46;font-weight:600">${h.equiv24pk||Math.round((h.goodCases||h.casesMade)*h.cupsPerCase/24)}</div>
         <div style="flex:0 0 52px;text-align:right;color:#555">${h.totalDefects}</div>
         <div style="flex:0 0 64px;text-align:right;font-weight:700;color:${h.lpm>=1000?'#DC2626':'#065F46'}">${h.lpm.toLocaleString()}</div>
       </div>`).join('');
@@ -2434,7 +2563,70 @@
     alert('Re-export from history coming soon — data is saved and available.');
   }
   // Check on load and after each session
-  document.addEventListener('DOMContentLoaded', checkHistoryButtons);
+
+  // ── Mock Report Generator ──
+  async function generateMockReports() {
+    const types = [
+      { type: 'split',    label: 'Split Cup',        cupsPerCase: 12, wo: '5120-MOCK-SPLIT' },
+      { type: 'round-89', label: 'Round Cup (89 mm)', cupsPerCase: 10, wo: '5120-MOCK-89MM'  },
+      { type: 'round-76', label: 'Round Cup (76 mm)', cupsPerCase: 12, wo: '5120-MOCK-76MM'  },
+    ];
+    for (const t of types) {
+      // Build a mock workorder with 2 cups, one with defects
+      const mockWO = {
+        name: t.wo,
+        shift: '1st',
+        cupType: t.type,
+        cupTypeLabel: t.label,
+        cups: [
+          { id: 'c1', number: 1, type: t.type, filler: 'M51', timestamp: '0800',
+            weight: t.type === 'split' ? { A: '78', B: '78' } : '78',
+            defects: [
+              { type: 'Cut/hole',     view: 'top',    x: 80,  y: 60  },
+              { type: 'Swelling',     view: 'top',    x: 180, y: 90  },
+              { type: 'Delamination', view: 'bottom', x: 100, y: 150 },
+            ]
+          },
+          { id: 'c2', number: 2, type: t.type, filler: 'M52', timestamp: '0830',
+            weight: t.type === 'split' ? { A: '76', B: '80' } : '76',
+            defects: [
+              { type: 'Misaligned lid',  view: 'top',    x: 140, y: 55  },
+              { type: 'Incomplete seal', view: 'bottom', x: 130, y: 160 },
+            ]
+          },
+          { id: 'c3', number: 3, type: t.type, filler: 'M51', timestamp: '0900',
+            weight: t.type === 'split' ? { A: '79', B: '77' } : '79',
+            defects: []
+          },
+        ]
+      };
+
+      // Temporarily swap workorders
+      const savedWO = workorders.slice();
+      workorders = [mockWO];
+
+      // Set mock summary values via hidden inputs
+      document.getElementById('totalCupsInput').value    = '500';
+      document.getElementById('cupsPerCaseInput').value  = String(t.cupsPerCase);
+      document.getElementById('goodCasesInput').value    = '488';
+      document.getElementById('commentsInput').value     = 'Mock report — ' + t.label;
+
+      await confirmExport();
+
+      // Restore
+      workorders = savedWO;
+      document.getElementById('totalCupsInput').value   = '';
+      document.getElementById('cupsPerCaseInput').value = '';
+      document.getElementById('goodCasesInput').value   = '';
+      document.getElementById('commentsInput').value    = '';
+
+      // Small delay between exports
+      await new Promise(r => setTimeout(r, 800));
+    }
+    alert('Mock reports generated for all 3 cup types.');
+  }
+
+    document.addEventListener('DOMContentLoaded', checkHistoryButtons);
   checkHistoryButtons();
 
 
@@ -2480,9 +2672,10 @@
         <label style="font-size:11px;color:#555;font-weight:600;white-space:nowrap">Shift:</label>
         <select id="filterShift" style="padding:4px 8px;font-size:12px;border:1px solid #ddd;border-radius:5px" onchange="applyFilters()">
           <option value="">All</option>
-          <option value="Day">Day</option>
-          <option value="Mid">Mid</option>
-          <option value="Night">Night</option>
+          <option value="1st">1st</option>
+          <option value="2nd">2nd</option>
+          <option value="3rd">3rd</option>
+          <option value="4th">4th</option>
         </select>
       </div>
       <button onclick="resetFilters()" style="font-size:11px;padding:4px 10px;background:white;border:1px solid #ddd;border-radius:5px;cursor:pointer;color:#555">Reset</button>
